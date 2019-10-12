@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import os
-import sys
 
 from ApacheLogAnalyzer.conf import user_config
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord

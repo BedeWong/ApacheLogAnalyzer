@@ -2,7 +2,7 @@
 
 from abc import abstractmethod
 
-from .record import ApacheLogRecord
+from ApacheLogAnalyzer.parser.record import ApacheLogRecord
 
 
 class ParserBehavior(object):

@@ -41,13 +41,22 @@ class FullReport(BaseReport):
         assert isinstance(record, ApacheLogRecord)
 
         uri = record.get('uri')
-        ip = record.get('ip')
+        ip = record.get('remote_ip')
         pk = (uri, ip)
         if pk not in self.model:
             self.model[pk] = self._new_ceil()
 
         self.model[pk]['pv'] += 1
 
+    def export_report(self):
+        datas = []
+
+        for pk, item in self.model.items():
+            url, ip = pk
+            pv = item['pv']
+            datas.append([url, ip, str(pv)])
+
+        return ReportDetail(self.head, datas)
 
 class IpReport(BaseReport):
     """"""
@@ -61,7 +70,7 @@ class IpReport(BaseReport):
     def add_record(self, record):
         assert isinstance(record, ApacheLogRecord)
 
-        ip = record.get('ip')
+        ip = record.get('remote_ip')
         if ip not in self.model:
             self.model[ip] = self._new_ceil()
 
@@ -69,6 +78,14 @@ class IpReport(BaseReport):
         if record.has_characteristic('article'):
             self.model[ip]['articles'].add(record.get('uri'))
 
+    def export_report(self):
+        datas = []
+        for ip, item in self.model.items():
+            count = item['count']
+            article_cnt = len(item['articles'])
+            datas.append([ip, str(count), str(article_cnt)])
+
+        return ReportDetail(self.head, datas)
 
 class ArticleReport(BaseReport):
     """"""
@@ -89,6 +106,17 @@ class ArticleReport(BaseReport):
         self.model[uri]['pv'] += 1
         self.model[uri]['ips'].add(record.get('ip'))
 
+    def export_report(self):
+        datas = []
+
+        for url, item in self.model.items():
+            title = ''
+            pv_cnt = item['pv']
+            ip_cnt = len(item['ips'])
+
+            datas.append([url, title, str(pv_cnt), str(ip_cnt)])
+
+        return ReportDetail(self.head, datas)
 
 class ReportDetail(object):
     """
