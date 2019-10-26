@@ -27,16 +27,3 @@ __useroptions = UserOptions()
 
 def get_useroptions():
     return __useroptions
-
-
-def main():
-    options = UserOptions()
-
-    print(options.domain)
-    print(options.outpath)
-    print(options.report_type)
-    print(options.files)
-
-
-if __name__ == '__main__':
-    main()

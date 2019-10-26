@@ -23,8 +23,18 @@ class ApacheLogRecordParser(object):
     def get_suffix(uri):
         assert isinstance(uri, str)
 
+        # 分割参数和url
         path = uri.split('?')[0]
-        return path.split('.')[-1]
+        # 获取uri中的具体文件
+        file = path.split('/')[-1]
+        # 后缀
+        items = file.split('.')
+        if len(items) <= 1:
+            # 没有后缀
+            suffix = ''
+        else:
+            suffix = items[-1]
+        return suffix
 
     @staticmethod
     def is_article(record):
@@ -74,10 +84,11 @@ class ApacheLogRecord(RecordBase, ParserBehavior):
         self.parser = ApacheLogRecordParser()
 
     def has_characteristic(self, attr):
+        """判断该元记录是否含有某种属性."""
         assert isinstance(attr, str)
 
         if attr in self.characteristic:
-            return True
+            return self.characteristic[attr]
 
         judge_name = 'is_' + attr
         judge_func = getattr(self.parser, judge_name, None)
@@ -87,8 +98,8 @@ class ApacheLogRecord(RecordBase, ParserBehavior):
         assert callable(judge_func)
 
         res = judge_func(self)
-        if res:
-            self.characteristic[attr] = True
+        self.characteristic[attr] = res
+
         return res
 
     @classmethod
@@ -98,17 +109,17 @@ class ApacheLogRecord(RecordBase, ParserBehavior):
         match_res = cls.REG_RULE.match(line)
         # 该行日志不是用户访问记录的日志行
         if not match_res:
-            print('can not match line: %s, not a user access record' % line)
+            # print('can not match line: %s, not a user access record' % line)
             return None
 
         result = match_res.groupdict(default='')
         uri = result.get('uri', None)
         if not uri:
-            print('this line has no uri field. line %s' % line)
+            # print('this line has no uri field. line %s' % line)
             return None
 
         if cls.is_resource_file(uri):
-            print('this record is a resource file. record: %s' % result)
+            # print('this record is a resource file. record: %s' % result)
             return None
 
         return cls(result)
@@ -124,6 +135,7 @@ class ApacheLogRecord(RecordBase, ParserBehavior):
         assert isinstance(uri, str)
 
         # 去掉参数部分
+        # Todo..
         path = uri.split('?')[0]
         suffix = path.split('.')[-1]
         if not suffix:
@@ -136,26 +148,3 @@ class ApacheLogRecord(RecordBase, ParserBehavior):
             return True
 
         return False
-
-
-def main():
-    line = '''31.57.137.99 - - [11/Aug/2019:05:00:21 +0800] "GET /index.htm HTTP/1.0" 200 3203 
-31.57.137.99 - - [11/Aug/2019:05:00:21 +0800] "GET /index.htm HTTP/1.0" 200 3203'''
-    record = ApacheLogRecord.from_line(line)
-    print(record.data)
-    '''
-    output:
-        {
-            'remote_ip': '31.57.137.99',
-            'datetime': '11/Aug/2019:05:00:21 +0800',
-            'method': 'GET',
-            'uri': '/index.htm',
-            'protocol': 'HTTP/1.0',
-            'code': '200',
-            'content_length': '3203'
-        }
-    '''
-
-
-if __name__ == '__main__':
-    main()

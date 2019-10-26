@@ -8,11 +8,11 @@ def get_title(domain, uri):
     assert isinstance(domain, str)
 
     url = 'http://%s%s' % (domain, uri)
-    print('fetch url title: url: %s' % url)
+    # print('fetch url title: url: %s' % url)
     resp = requests.get(url)
     data = resp.content
 
-    print('the repsonse: %s' % data)
+    # print('the repsonse: %s' % data)
 
     reg = r'<title>(.*?)</title>'
     result = re.search(reg, data.decode())
