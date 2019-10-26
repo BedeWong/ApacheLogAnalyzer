@@ -1,7 +1,11 @@
 # coding=utf-8
 from abc import abstractmethod
+import sys
+import traceback
 
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
+from ApacheLogAnalyzer.utils import http_utils
+from ApacheLogAnalyzer.cmd import user_options
 
 
 class BaseReport(object):
@@ -92,6 +96,7 @@ class ArticleReport(BaseReport):
     def __init__(self):
         super(ArticleReport, self).__init__()
         self.head = ['URL', '标题', '访问人次', '访问ip数']
+        self.domain = user_options.get_useroptions().domain
 
     def _new_ceil(self):
         return {'pv': 0, 'ips': set()}
@@ -100,9 +105,16 @@ class ArticleReport(BaseReport):
         assert isinstance(record, ApacheLogRecord)
 
         uri = record.get('uri')
+        title = ''
+        try:
+            title = http_utils.get_title(self.domain, uri)
+        except Exception as e:
+            traceback.print_exc()
+
         if uri not in self.model:
             self.model[uri] = self._new_ceil()
 
+        self.model[uri]['title'] =  title
         self.model[uri]['pv'] += 1
         self.model[uri]['ips'].add(record.get('ip'))
 
@@ -110,7 +122,7 @@ class ArticleReport(BaseReport):
         datas = []
 
         for url, item in self.model.items():
-            title = ''
+            title = item['title']
             pv_cnt = item['pv']
             ip_cnt = len(item['ips'])
 
@@ -129,16 +141,23 @@ class ReportDetail(object):
         self.heads = heads
         self.datas = datas
 
-    def __str__(self):
+    def output(self, file=None):
         if not isinstance(self.heads, (tuple, list)):
             raise ValueError()
         if not isinstance(self.datas, (tuple, list)):
             raise ValueError()
 
-        head_str = '|%s|' % ('|'.join(self.heads))
-        datas_lst = ['|%s|' % ('|'.join(line)) for line in self.datas]
-        body_str = '\n'.join(datas_lst)
-        return '%s\n%s\n' % (head_str, body_str)
+        if not file:
+            file = sys.stdout
+
+        # 头部
+        file.write('|%s|\n' % ('|'.join(self.heads)))
+        size = len(self.heads)
+        file.write('|%s\n' % (':---:|' * size))
+
+        # 数据部分
+        for line in self.datas:
+            file.write('|%s|\n' % ('|'.join(line)))
 
 
 # 所有的样式

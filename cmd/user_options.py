@@ -8,7 +8,7 @@ parser.add_argument("files", help='待分析的日志文件 file1.log [file2.log
                     type=str, nargs='+')
 parser.add_argument("--type", help='描述报表类型 [all[,ip[, article[, full]]]]',
                     type=str, nargs='+', default=['all'])
-parser.add_argument("--domain", help='服务器域名', type=str, default='127.0.0.1')
+parser.add_argument("--domain", help='服务器域名', type=str, default='120.79.208.53:8000')
 parser.add_argument("--outpath", help='报表输出目录', type=str, default='./')
 
 
@@ -30,7 +30,7 @@ class UserOptions(object):
 useroptions = UserOptions()
 
 
-def get_conf():
+def get_useroptions():
     return useroptions
 
 
