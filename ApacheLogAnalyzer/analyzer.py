@@ -1,7 +1,5 @@
 # coding=utf-8
 
-import os
-
 from ApacheLogAnalyzer.cmd import user_options
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
 from ApacheLogAnalyzer.report import report
@@ -13,7 +11,6 @@ class Analyzer(object):
     def __init__(self):
         self.ops = user_options.get_useroptions()
 
-        self.files = self.ops.files
         self.report_objs = report.parse_report_type(self.ops.report_type)
 
     def parse_record(self, record):
@@ -26,23 +23,28 @@ class Analyzer(object):
             report_detail = report_obj.export_report()
             report_detail.output()
 
+    def gen_lines(self):
+        files = self.ops.files
+        if not files:
+            return
+
+        for file in files:
+            with open(file, 'r') as f:
+                for line in f:
+                    yield line
+
     def do_work(self):
         """
 
         :return:
         """
-        for logfile in self.files:
-            if not os.path.exists(logfile):
-                print('日志文件：[%s] 不存在.' % logfile)
+        lines = self.gen_lines()
+        for line in lines:
+            record = ApacheLogRecord.from_line(line)
+            if record is None:
                 continue
 
-            with open(logfile, 'r') as f:
-                for line in f:
-                    record = ApacheLogRecord.from_line(line)
-                    if record is None:
-                        continue
-
-                    self.parse_record(record)
+            self.parse_record(record)
 
 
 def main():

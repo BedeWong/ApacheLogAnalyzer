@@ -5,7 +5,6 @@ import traceback
 
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
 from ApacheLogAnalyzer.utils import http_utils
-from ApacheLogAnalyzer.cmd import user_options
 
 
 class BaseReport(object):
@@ -62,6 +61,7 @@ class FullReport(BaseReport):
 
         return ReportDetail(self.head, datas)
 
+
 class IpReport(BaseReport):
     """"""
     def __init__(self):
@@ -91,12 +91,12 @@ class IpReport(BaseReport):
 
         return ReportDetail(self.head, datas)
 
+
 class ArticleReport(BaseReport):
     """"""
     def __init__(self):
         super(ArticleReport, self).__init__()
         self.head = ['URL', '标题', '访问人次', '访问ip数']
-        self.domain = user_options.get_useroptions().domain
 
     def _new_ceil(self):
         return {'pv': 0, 'ips': set()}
@@ -107,7 +107,7 @@ class ArticleReport(BaseReport):
         uri = record.get('uri')
         title = ''
         try:
-            title = http_utils.get_title(self.domain, uri)
+            title = http_utils.get_title(uri)
         except Exception as e:
             traceback.print_exc()
 
@@ -129,6 +129,7 @@ class ArticleReport(BaseReport):
             datas.append([url, title, str(pv_cnt), str(ip_cnt)])
 
         return ReportDetail(self.head, datas)
+
 
 class ReportDetail(object):
     """
@@ -185,10 +186,4 @@ def parse_report_type(kinds):
         style_cls = REPORT_STYLE_CLASSES[item]
         result.append(style_cls())
 
-
-def main():
-    deltail = ReportDetail()
-
-
-if __name__ == '__main__':
-    main()
+    return result

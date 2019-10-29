@@ -5,6 +5,7 @@ import mock
 from ApacheLogAnalyzer.parser.record import ApacheLogRecordParser
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
 
+
 class TestApacheLogRecordParser(unittest.TestCase):
     """"""
 
