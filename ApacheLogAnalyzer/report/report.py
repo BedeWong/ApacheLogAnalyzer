@@ -12,6 +12,7 @@ class BaseReport(object):
     """"""
     def __init__(self):
         self.head = []
+        self.title = '报告'
         self.model = {}
 
     @abstractmethod
@@ -32,7 +33,7 @@ class BaseReport(object):
     def export_report(self):
         """导出报告记录."""
         datas = self.gen_report_line()
-        return ReportDetail(self.head, datas)
+        return ReportDetail(self.title, self.head, datas)
 
     def reset(self):
         self.model.clear()
@@ -42,6 +43,7 @@ class FullReport(BaseReport):
     """"""
     def __init__(self):
         super(FullReport, self).__init__()
+        self.title = '完整报告'
         self.head = ['URL', 'IP', '访问次数']
 
     def _new_ceil(self):
@@ -71,6 +73,7 @@ class IpReport(BaseReport):
     """"""
     def __init__(self):
         super(IpReport, self).__init__()
+        self.title = 'IP报告'
         self.head = ['IP', '访问数', '访问文章数']
 
     def _new_ceil(self):
@@ -100,6 +103,7 @@ class ArticleReport(BaseReport):
     """"""
     def __init__(self):
         super(ArticleReport, self).__init__()
+        self.title = '文章报告'
         self.head = ['URL', '标题', '访问人次', '访问ip数']
 
     def _new_ceil(self):
@@ -139,9 +143,10 @@ class ReportDetail(object):
     用来渲染报告数据.
     """
 
-    def __init__(self, heads, datas):
+    def __init__(self, title, heads, datas):
         self.heads = heads
         self.datas = datas
+        self.title = title
 
     def output(self, file=None):
         if not isinstance(self.heads, (tuple, list)):
@@ -153,6 +158,7 @@ class ReportDetail(object):
             file = sys.stdout
 
         # 头部
+        file.write('## %s\n' % self.title)
         file.write('|%s|\n' % ('|'.join(self.heads)))
         size = len(self.heads)
         file.write('|%s\n' % (':---:|' * size))
@@ -160,6 +166,8 @@ class ReportDetail(object):
         # 数据部分
         for line in self.datas:
             file.write('|%s|\n' % ('|'.join(line)))
+
+        file.write('\n')
 
 
 # 所有的样式

@@ -84,9 +84,11 @@ class TestReport(unittest.TestCase):
         out = StringIO()
         d1.output(out)
 
-        expect_val = '''|URL|IP|访问次数|
+        expect_val = '''## 完整报告
+|URL|IP|访问次数|
 |:---:|:---:|:---:|
 |/index.htm|31.57.137.99|1|
+
 '''
 
         self.assertEqual(expect_val, out.getvalue(), '打印结果和预期不符, result:%s'
