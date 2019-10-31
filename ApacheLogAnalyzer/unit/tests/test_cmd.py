@@ -14,12 +14,12 @@ class TestUserOptions(unittest.TestCase):
 
         from ApacheLogAnalyzer.cmd import user_options
         ops = user_options.get_useroptions()
-        def_domain = '120.79.208.53:8000'
-        def_outpath = './'
+        def_domain = '200.200.1.35'
+        def_outfile = './report.md'
         def_type = ['all']
         logfiles= ['apache.log']
 
         self.assertEqual(ops.domain, def_domain, '默认域名参数不匹配')
-        self.assertEqual(ops.outpath, def_outpath, '默认域名参数不匹配')
+        self.assertEqual(ops.outfile, def_outfile, '默认输出文件参数不匹配')
         self.assertEqual(ops.report_type, def_type, '')
         self.assertEqual(ops.files, logfiles, '')

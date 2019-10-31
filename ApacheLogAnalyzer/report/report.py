@@ -1,5 +1,6 @@
 # coding=utf-8
 from abc import abstractmethod
+from collections import Iterable
 import sys
 import traceback
 
@@ -10,6 +11,7 @@ from ApacheLogAnalyzer.utils import http_utils
 class BaseReport(object):
     """"""
     def __init__(self):
+        self.head = []
         self.model = {}
 
     @abstractmethod
@@ -23,9 +25,14 @@ class BaseReport(object):
         raise NotImplementedError
 
     @abstractmethod
+    def gen_report_line(self):
+        """生成报告数据行."""
+        raise NotImplementedError
+
     def export_report(self):
         """导出报告记录."""
-        raise NotImplementedError
+        datas = self.gen_report_line()
+        return ReportDetail(self.head, datas)
 
     def reset(self):
         self.model.clear()
@@ -41,6 +48,7 @@ class FullReport(BaseReport):
         return {'pv': 0}
 
     def add_record(self, record):
+        """增加一条日志记录."""
         assert isinstance(record, ApacheLogRecord)
 
         uri = record.get('uri')
@@ -51,15 +59,12 @@ class FullReport(BaseReport):
 
         self.model[pk]['pv'] += 1
 
-    def export_report(self):
-        datas = []
-
+    def gen_report_line(self):
+        """生成报告数据行."""
         for pk, item in self.model.items():
             url, ip = pk
             pv = item['pv']
-            datas.append([url, ip, str(pv)])
-
-        return ReportDetail(self.head, datas)
+            yield [url, ip, str(pv)]
 
 
 class IpReport(BaseReport):
@@ -82,14 +87,13 @@ class IpReport(BaseReport):
         if record.has_characteristic('article'):
             self.model[ip]['articles'].add(record.get('uri'))
 
-    def export_report(self):
-        datas = []
+    def gen_report_line(self):
+        """生成报告数据行."""
         for ip, item in self.model.items():
             count = item['count']
             article_cnt = len(item['articles'])
-            datas.append([ip, str(count), str(article_cnt)])
 
-        return ReportDetail(self.head, datas)
+            yield [ip, str(count), str(article_cnt)]
 
 
 class ArticleReport(BaseReport):
@@ -107,28 +111,25 @@ class ArticleReport(BaseReport):
         uri = record.get('uri')
         title = ''
         try:
-            title = http_utils.get_title(uri)
+            title = http_utils.TitleManager.get_title(uri)
         except Exception as e:
             traceback.print_exc()
 
         if uri not in self.model:
             self.model[uri] = self._new_ceil()
 
-        self.model[uri]['title'] =  title
+        self.model[uri]['title'] = title
         self.model[uri]['pv'] += 1
         self.model[uri]['ips'].add(record.get('ip'))
 
-    def export_report(self):
-        datas = []
-
+    def gen_report_line(self):
+        """生成报告数据行."""
         for url, item in self.model.items():
             title = item['title']
             pv_cnt = item['pv']
             ip_cnt = len(item['ips'])
 
-            datas.append([url, title, str(pv_cnt), str(ip_cnt)])
-
-        return ReportDetail(self.head, datas)
+            yield [url, title, str(pv_cnt), str(ip_cnt)]
 
 
 class ReportDetail(object):
@@ -145,7 +146,7 @@ class ReportDetail(object):
     def output(self, file=None):
         if not isinstance(self.heads, (tuple, list)):
             raise ValueError()
-        if not isinstance(self.datas, (tuple, list)):
+        if not isinstance(self.datas, Iterable):
             raise ValueError()
 
         if not file:

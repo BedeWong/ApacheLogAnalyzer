@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import unittest
+import  mock
 from io import StringIO
 
 from ApacheLogAnalyzer.report.report import BaseReport
@@ -9,6 +10,7 @@ from ApacheLogAnalyzer.report.report import IpReport
 from ApacheLogAnalyzer.report.report import ArticleReport
 from ApacheLogAnalyzer.report.report import parse_report_type
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
+from ApacheLogAnalyzer.utils.http_utils import TitleManager
 
 
 class TestReport(unittest.TestCase):
@@ -17,7 +19,10 @@ class TestReport(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_add_recoed(self):
+    @mock.patch('ApacheLogAnalyzer.utils.http_utils.TitleManager.get_title')
+    def test_add_recoed(self, mock_get_title):
+        mock_get_title.return_value = 'mock_title'
+
         full_report = FullReport()
         ip_report = IpReport()
         article_report = ArticleReport()
@@ -37,7 +42,10 @@ class TestReport(unittest.TestCase):
         self.assertEqual('/index.htm', uri, u'uri数据错误')
         self.assertEqual('31.57.137.99', ip, u'ip数据错误')
 
-    def test_export(self):
+    @mock.patch('ApacheLogAnalyzer.utils.http_utils.TitleManager.get_title')
+    def test_export(self, mock_get_title):
+        mock_get_title.return_value = 'mock_title'
+
         full_report = FullReport()
         ip_report = IpReport()
         article_report = ArticleReport()
@@ -53,9 +61,17 @@ class TestReport(unittest.TestCase):
         d2 = ip_report.export_report()
         d3 = article_report.export_report()
 
-        self.assertEqual(1, len(d1.datas), u'数据长度不符')
-        self.assertEqual(1, len(d2.datas), u'数据长度不符')
-        self.assertEqual(1, len(d3.datas), u'数据长度不符')
+        d1_uri, d1_ip, d1_pv = next(d1.datas)
+        self.assertEqual((d1_uri, d1_ip, d1_pv),
+                          ('/index.htm', '31.57.137.99', '1'), u'数据不一致')
+
+        d2_ip, d2_count, d2_article_cnt = next(d2.datas)
+        self.assertEqual((d2_ip, d2_count, d2_article_cnt),
+                         ('31.57.137.99', '1', '1'), u'数据不一致')
+
+        d3_uri, d3_title, d3_pv, d3_ip_cnt = next(d3.datas)
+        self.assertEqual((d3_uri, d3_title, d3_pv, d3_ip_cnt),
+                         ('/index.htm', 'mock_title', '1', '1'), u'数据长度不符')
 
     def test_output(self):
         full_report = FullReport()
