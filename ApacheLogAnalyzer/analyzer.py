@@ -1,7 +1,5 @@
 # coding=utf-8
 
-import json
-
 from ApacheLogAnalyzer.cmd import user_options
 from ApacheLogAnalyzer.parser.record import ApacheLogRecord
 from ApacheLogAnalyzer.report import report

@@ -23,7 +23,7 @@ class TitleManager(object):
         except Exception:
             print('[ERR] 写入标题缓存文件失败！ file: %s' %
                   TitleManager.CACHE_FILE)
-            traceback.print_exc()
+            raise
 
     def load(self):
         with open(TitleManager.CACHE_FILE, 'r') as f:
