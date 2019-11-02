@@ -9,6 +9,7 @@ class TestUserOptions(unittest.TestCase):
         pass
 
     def test_user_options(self):
+        sys.argv = sys.argv[:1]
         sys.argv.append('apache.log')
         sys.argv.append('--type=all')
 
