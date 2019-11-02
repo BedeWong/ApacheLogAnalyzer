@@ -91,7 +91,7 @@ unit/tests/test_http_utils.py      15      0   100%
 unit/tests/test_record.py          46      0   100%
 unit/tests/test_report.py          72      0   100%
 utils/__init__.py                   0      0   100%
-utils/http_utils.py                58     17    71%
+utils/http_utils.py                70     5    93%
 ---------------------------------------------------
-TOTAL                             466     84    82%
+TOTAL                             466     84    92%
 ```
