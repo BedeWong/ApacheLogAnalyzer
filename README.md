@@ -77,21 +77,22 @@ unit/tests/test_report.py ....                                                  
 Name                            Stmts   Miss  Cover
 ---------------------------------------------------
 __init__.py                         0      0   100%
-analyzer.py                        52     52     0%
+analyzer.py                        51     51     0%
 cmd/__init__.py                     0      0   100%
 cmd/user_options.py                18      0   100%
 parser/__init__.py                  0      0   100%
 parser/record.py                   71      6    92%
 report/__init__.py                  0      0   100%
-report/report.py                  114      9    92%
+report/report.py                  121      9    93%
 unit/__init__.py                    0      0   100%
 unit/tests/__init__.py              0      0   100%
-unit/tests/test_cmd.py             20      0   100%
-unit/tests/test_http_utils.py      15      0   100%
+unit/tests/test_analyzer.py         0      0   100%
+unit/tests/test_cmd.py             19      0   100%
+unit/tests/test_http_utils.py      36      1    97%
 unit/tests/test_record.py          46      0   100%
 unit/tests/test_report.py          72      0   100%
 utils/__init__.py                   0      0   100%
-utils/http_utils.py                70     5    93%
+utils/http_utils.py                58      4    93%
 ---------------------------------------------------
-TOTAL                             466     84    92%
+TOTAL                             492     71    86%
 ```
